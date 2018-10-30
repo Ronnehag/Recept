@@ -1,39 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Windows.Forms;
+﻿using System.Collections.Generic;
+using System.Data;
 using Uppgift_1.Model;
 
 namespace Uppgift_1.Data
 {
     public class RecipeRepository
     {
-        private const string ConnectionString =
-            "Data Source=(local);Initial Catalog=Food;Integrated Security=SSPI";
-
         public List<Recipe> GetRecipesByTitle(string title)
         {
             var recipes = new List<Recipe>();
             var sqlQuery = $"SELECT * FROM Recipe WHERE Title LIKE '%{title}%'";
 
-            using (var connection = new SqlConnection(ConnectionString))
+            var db = new DbManager(sqlQuery);
+            var table = db.GetTableFromSql();
+            if (table != null)
             {
-                connection.Open();
-                var command = new SqlCommand(sqlQuery, connection);
-                var reader = command.ExecuteReader();
-                if (reader.HasRows)
+                foreach (DataRow row in table.Rows)
                 {
-                    while (reader.Read())
+                    recipes.Add(new Recipe
                     {
-                        recipes.Add(new Recipe
-                        {
-                            Title = reader["Title"].ToString(),
-                            RecipeId = Convert.ToInt32(reader["RecipeID"]),
-                            CategoryId = Convert.ToInt32(reader["CategoryID"]),
-                            Ingredients = reader["Ingredient"].ToString(),
-                            Description = reader["RecipeSteps"].ToString()
-                        });
-                    }
+                        RecipeId = int.Parse(row.ItemArray[0].ToString()),
+                        Title = row.ItemArray[1].ToString(),
+                        CategoryId = int.Parse(row.ItemArray[2].ToString()),
+                        Ingredients = row.ItemArray[5].ToString(),
+                        Description = row.ItemArray[4].ToString()
+                    });
+                    
                 }
             }
             return recipes;
@@ -44,24 +36,21 @@ namespace Uppgift_1.Data
             var recipes = new List<Recipe>();
             var sqlQuery = $"SELECT * FROM Recipe WHERE CategoryID = {categoryId}";
 
-            using (var connection = new SqlConnection(ConnectionString))
+            var db = new DbManager(sqlQuery);
+            var table = db.GetTableFromSql();
+            if (table != null)
             {
-                connection.Open();
-                var command = new SqlCommand(sqlQuery, connection);
-                var reader = command.ExecuteReader();
-                if (reader.HasRows)
+                foreach (DataRow row in table.Rows)
                 {
-                    while (reader.Read())
+                    recipes.Add(new Recipe
                     {
-                        recipes.Add(new Recipe
-                        {
-                            Title = reader["Title"].ToString(),
-                            RecipeId = Convert.ToInt32(reader["RecipeID"]),
-                            CategoryId = Convert.ToInt32(reader["CategoryID"]),
-                            Ingredients = reader["Ingredient"].ToString(),
-                            Description = reader["RecipeSteps"].ToString()
-                        });
-                    }
+                        RecipeId = int.Parse(row.ItemArray[0].ToString()),
+                        Title = row.ItemArray[1].ToString(),
+                        CategoryId = int.Parse(row.ItemArray[2].ToString()),
+                        Ingredients = row.ItemArray[5].ToString(),
+                        Description = row.ItemArray[4].ToString()
+                    });
+
                 }
             }
             return recipes;
@@ -72,24 +61,21 @@ namespace Uppgift_1.Data
             var recipes = new List<Recipe>();
             var sqlQuery = $"SELECT * FROM Recipe WHERE CategoryID = {categoryId} AND Title LIKE '%{title}%'";
 
-            using (var connection = new SqlConnection(ConnectionString))
+            var db = new DbManager(sqlQuery);
+            var table = db.GetTableFromSql();
+            if (table != null)
             {
-                connection.Open();
-                var command = new SqlCommand(sqlQuery, connection);
-                var reader = command.ExecuteReader();
-                if (reader.HasRows)
+                foreach (DataRow row in table.Rows)
                 {
-                    while (reader.Read())
+                    recipes.Add(new Recipe
                     {
-                        recipes.Add(new Recipe
-                        {
-                            Title = reader["Title"].ToString(),
-                            RecipeId = Convert.ToInt32(reader["RecipeID"]),
-                            CategoryId = Convert.ToInt32(reader["CategoryID"]),
-                            Ingredients = reader["Ingredient"].ToString(),
-                            Description = reader["RecipeSteps"].ToString()
-                        });
-                    }
+                        RecipeId = int.Parse(row.ItemArray[0].ToString()),
+                        Title = row.ItemArray[1].ToString(),
+                        CategoryId = int.Parse(row.ItemArray[2].ToString()),
+                        Ingredients = row.ItemArray[5].ToString(),
+                        Description = row.ItemArray[4].ToString()
+                    });
+
                 }
             }
             return recipes;
@@ -100,12 +86,8 @@ namespace Uppgift_1.Data
             string sqlQuery = $"INSERT INTO Recipe(Title, Ingredient, CategoryID, RecipeSteps) " +
                               $"VALUES('{recipe.Title}', '{recipe.Ingredients}', '{recipe.CategoryId}', '{recipe.Description}')";
 
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                connection.Open();
-                var command = new SqlCommand(sqlQuery, connection);
-                command.ExecuteReader();
-            }
+            var db = new DbManager(sqlQuery);
+            db.ExecuteSqlNoReturn();
         }
 
         public void UpdateRecipe(Recipe recipe)
@@ -115,24 +97,15 @@ namespace Uppgift_1.Data
                               $"RecipeSteps = '{recipe.Description}' " +
                               $"WHERE RecipeID = '{recipe.RecipeId}'";
 
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                connection.Open();
-                var command = new SqlCommand(sqlQuery, connection);
-                command.ExecuteReader();
-            }
+            var db = new DbManager(sqlQuery);
+            db.ExecuteSqlNoReturn();
         }
 
         public void DeleteRecipe(int recipeId)
         {
             var sqlQuery = $"DELETE FROM Recipe WHERE RecipeID = {recipeId}";
-
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                connection.Open();
-                var command = new SqlCommand(sqlQuery, connection);
-                command.ExecuteReader();
-            }
+            var db = new DbManager(sqlQuery);
+            db.ExecuteSqlNoReturn();
         }
 
 

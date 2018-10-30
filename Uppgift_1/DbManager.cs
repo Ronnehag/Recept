@@ -9,21 +9,35 @@ namespace Uppgift_1
 {
     public class DbManager
     {
-        private const string ConnectionString =
-            "Data Source=(local);Initial Catalog=Food;Integrated Security=SSPI";
+        private readonly string _connectionString;
+        private readonly string _sql;
 
-        public DataTable GetTableFromSql(string sqlCode)
+        public DbManager(string sql)
         {
-            DataTable table;
-            using (var connection = new SqlConnection(ConnectionString))
+            _connectionString = "Data Source=(local);Initial Catalog=Food;Integrated Security=SSPI";
+            _sql = sql;
+        }
+
+        public DataTable GetTableFromSql()
+        {
+            var table = new DataTable();
+            using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                var adapter = new SqlDataAdapter(sqlCode, connection);
-                table = new DataTable();
+                var adapter = new SqlDataAdapter(_sql, connection);
                 adapter.Fill(table);
             }
             return table;
+        }
 
+        public void ExecuteSqlNoReturn()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var cmd = new SqlCommand(_sql, connection);
+                cmd.ExecuteNonQuery();
+            }
         }
 
 
